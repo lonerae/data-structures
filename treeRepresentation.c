@@ -149,14 +149,14 @@ void traverseTree(struct treeNode* node) {
 		return;
 	}
 	
-	printf("%c ",node->operator);
-	
 	if (node->right != NULL) {
 		traverseTree(node->right);
 	} else {
 		printf("%d ",node->value);
 		return;
 	}
+	
+	printf("%c ",node->operator);
 }
 
 int main() {
