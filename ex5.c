@@ -8,7 +8,7 @@ struct Node {
 
 struct Node* head;
 
-void push(int num){    
+void push(int num, int i) {
 	struct Node* tmp;    
 	tmp = (struct Node*)malloc(sizeof (struct Node));    
 	tmp->number = num;    
@@ -39,10 +39,10 @@ void display(){
 	}
 }
 
-int main() {    
-	push(8);    
-	push(9);    
-	push(10);    
+int main() {
+    push(8, 0);
+    push(9, 0);
+    push(10, 0);
 	display();    
 	printf("========================================================\n");    
 	pop();    

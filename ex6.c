@@ -18,14 +18,14 @@ void print_stack (int x) {
     }
     printf("\n");
 };
-void push(int number) {
+void push(int num, int i) {
     if (top>(stack_size-1)){
         printf("Stack is Full!\n");
         return;
     }
     else {
         top++;
-        stack[top] = number;
+        stack[top] = num;
     }
 }
 int pop () {
@@ -53,27 +53,27 @@ int main () {
             temp1 = pop();
             temp2 = pop();
             result = temp1 + temp2;
-            push(result);
+            push(result, 0);
         }
         else if (expression[i] == minus) {
             temp1 = pop();
             temp2 = pop();
             result = temp2 - temp1;
-            push(result);
+            push(result, 0);
         }
         else if (expression[i] == mult) {
             temp1 = pop();
             temp2 = pop();
             result = temp1 * temp2;
-            push(result);
+            push(result, 0);
         } else if (expression[i] == div) {
             temp1 = pop();
             temp2 = pop();
             result = temp1 / temp2;
-            push(result);
+            push(result, 0);
         }
         else {
-            push(expression[i]);
+            push(expression[i], 0);
         }
         print_stack(i);
     }
