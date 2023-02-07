@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define MAX_EXPRESSION_LENGTH 50
+#define MAX_DIGIT_NUMBER 5
 
 /**
 * Returns a numeric expression where all white spaces are trimmed
@@ -11,7 +12,7 @@
 *
 * Parameters
 *	expression - pointer to the initial string
-	result - pointer to the result
+*	result - pointer to the result
 */
 void cleanExpression(char *expression, char *result) {
 	int expressionIndex = 0;
@@ -123,12 +124,10 @@ void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 }
 
 /**
-* Node structure for the generated tree. Each node
-* either has an operator character (inner node) or 
-* a value integer (leaf node).
+* Node structure for the generated tree. 
 */
 struct treeNode {
-	char value[5];
+	char value[MAX_DIGIT_NUMBER];
 	
 	struct treeNode *above;
 	struct treeNode *left;
@@ -166,8 +165,9 @@ struct treeNode *transform(char *expression) {
 	
 	findLeft(expression,left,leftFlag);
 	if (*leftFlag) {
-		parent->value[0] = *(expression+strlen(left));
+		parent->value[0] = *(expression+strlen(left)); // operators are characters (just 1B long)
 		strcpy(leftChild->value,left);	
+		
 		findRight(expression,right,strlen(left)+1,rightFlag);
 	} else {
 		parent->value[0] = *(expression+strlen(left)+2);
@@ -193,7 +193,8 @@ char evaluatedExpression[MAX_EXPRESSION_LENGTH][MAX_EXPRESSION_LENGTH];
 int part = 0;
 
 /**
-* Prints the post-order traversal of a subtree
+* Post-order traversal of a subtree and
+* insertion to the evaluated expression array.
 *
 * Parameters
 * 	node - the root node of the subtree
@@ -202,7 +203,6 @@ void traverseTree(struct treeNode* node) {
 	if (node->left != NULL) {
 		traverseTree(node->left);
 	} else {
-		printf("%s ",node->value);
 		strcpy(evaluatedExpression[part],node->value);
 		part++;
 		return;
@@ -211,13 +211,11 @@ void traverseTree(struct treeNode* node) {
 	if (node->right != NULL) {
 		traverseTree(node->right);
 	} else {
-		printf("%s ",node->value);
 		strcpy(evaluatedExpression[part],node->value);
 		part++;
 		return;
 	}
 	
-	printf("%s ",node->value);
 	strcpy(evaluatedExpression[part],node->value);
 	part++;
 }
@@ -229,15 +227,15 @@ int main() {
 	
 	char result[MAX_EXPRESSION_LENGTH];	
 	cleanExpression(expression,result);
-	printf("Clean form: %s\n",result);
+	printf("CLEAN FORM: %s\n",result);
 	
 	transform(result);
 	traverseTree(root);
-	printf("\n");
 	
 	for (int i=0; i<part; i++) {
 		printf("%s ", evaluatedExpression[i]);
 	}
+	printf("\n");
 	
 	return 0;
 }
