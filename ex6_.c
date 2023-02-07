@@ -13,14 +13,14 @@ void print_stack (int x) {
     }
     printf("\n");
 };
-void push(int number) {
+void push(int num, int i) {
     if (top>(stack_size-1)){
         printf("Stack is Full!\n");
         return;
     }
     else {
         top++;
-        stack[top] = number;
+        stack[top] = num;
     }
 }
 int pop () {
@@ -40,33 +40,33 @@ int main () {
     int i, temp1, temp2;
     int res1, res2, res3, result;
 
-    push(10);
+    push(10, 0);
     print_stack(i);
-    push(3);
+    push(3, 0);
     print_stack(i);
     temp1 = pop();
     temp2 = pop();
     res1 = temp2 - temp1;
-    push(res1);
+    push(res1, 0);
     print_stack(i);
-    push(8);
-    push(3);
+    push(8, 0);
+    push(3, 0);
     print_stack(i);
     temp1 = pop();
     temp2 = pop();
     res2 = temp1 + temp2;
-    push(res2);
+    push(res2, 0);
     print_stack(i);
     res1 = pop();
     res2 = pop();
     res3 = res1 * res2;
-    push(res3);
+    push(res3, 0);
     print_stack(i);
-    push(2);
+    push(2, 0);
     temp1 = pop();
     temp2 = pop();
     result = temp1 + temp2;
-    push(result);
+    push(result, 0);
     print_stack(i);
 
     return 0;
