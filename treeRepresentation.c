@@ -128,8 +128,7 @@ void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 * a value integer (leaf node).
 */
 struct treeNode {
-	char operator;
-	int value;
+	char value[5];
 	
 	struct treeNode *above;
 	struct treeNode *left;
@@ -167,12 +166,11 @@ struct treeNode *transform(char *expression) {
 	
 	findLeft(expression,left,leftFlag);
 	if (*leftFlag) {
-		parent->operator = *(expression+strlen(left));
-		leftChild->value = atoi(left);	
-
+		parent->value[0] = *(expression+strlen(left));
+		strcpy(leftChild->value,left);	
 		findRight(expression,right,strlen(left)+1,rightFlag);
 	} else {
-		parent->operator = *(expression+strlen(left)+2);
+		parent->value[0] = *(expression+strlen(left)+2);
 		leftChild = transform(left);
 		
 		findRight(expression,right,strlen(left)+3,rightFlag);
@@ -181,7 +179,7 @@ struct treeNode *transform(char *expression) {
 	leftChild->above = parent;
 	
 	if (*rightFlag) {
-		rightChild->value = atoi(right);
+		strcpy(rightChild->value,right);
 	} else {
 		rightChild = transform(right);
 	}
@@ -190,6 +188,9 @@ struct treeNode *transform(char *expression) {
 	
 	return parent;
 }
+
+char evaluatedExpression[MAX_EXPRESSION_LENGTH][MAX_EXPRESSION_LENGTH];
+int part = 0;
 
 /**
 * Prints the post-order traversal of a subtree
@@ -201,18 +202,24 @@ void traverseTree(struct treeNode* node) {
 	if (node->left != NULL) {
 		traverseTree(node->left);
 	} else {
-		printf("%d ",node->value);
+		printf("%s ",node->value);
+		strcpy(evaluatedExpression[part],node->value);
+		part++;
 		return;
 	}
 	
 	if (node->right != NULL) {
 		traverseTree(node->right);
 	} else {
-		printf("%d ",node->value);
+		printf("%s ",node->value);
+		strcpy(evaluatedExpression[part],node->value);
+		part++;
 		return;
 	}
 	
-	printf("%c ",node->operator);
+	printf("%s ",node->value);
+	strcpy(evaluatedExpression[part],node->value);
+	part++;
 }
 
 int main() {
@@ -227,7 +234,10 @@ int main() {
 	transform(result);
 	traverseTree(root);
 	printf("\n");
-	printf("%s\n",evaluatedExpression);
+	
+	for (int i=0; i<part; i++) {
+		printf("%s ", evaluatedExpression[i]);
+	}
 	
 	return 0;
 }
