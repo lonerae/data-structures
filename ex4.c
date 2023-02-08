@@ -36,7 +36,7 @@ void display(){
         for (i=0;i<=topIndex;i++) {
             printf("%d  ",stack[i]);
         }
-	}
+    }
 }
 
 int main() {
