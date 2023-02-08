@@ -11,7 +11,7 @@ void push(int num) {
     else {
         topIndex++;
         stack[topIndex] = num;
-        printf("\nNumber added!");;
+        printf("\nNumber added!");
     }
 }
 
