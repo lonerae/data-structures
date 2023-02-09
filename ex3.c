@@ -4,7 +4,7 @@
 
 struct subjectNode {
 	char subject[50];
-	struct student *ptr;
+	struct student *firstStudentPtr;
 
 	struct subjectNode *next;
 };
@@ -22,40 +22,33 @@ struct student {
 	struct student *next;
 };
 
-struct student *studentArray[3];
+struct student *studentArray[10];
 
-struct subjectNode *subjectExists(char subject[50]) {
-	struct subjectNode *temp = (struct subjectNode*) malloc(sizeof(struct subjectNode));
-	temp = head;
-
-	if (temp == NULL) {
-		return NULL;
-	} else {
-		if (strcmp(temp->subject,subject) == 0) {
-			return temp;
+struct subjectNode *subjectExists(char subject[]) {
+	struct subjectNode *subjectPtr = head;
+	while (subjectPtr != NULL) {
+		if (strcmp(subjectPtr->subject,subject) == 0) {
+			return subjectPtr;
 		}
+		subjectPtr = subjectPtr->next;
 	}
 	return NULL;
 }
 
 void addSubject(struct student *studentPtr) {
-	/* NEEDLESSLY COMPLICATED BUT WORKS -> WILL OPTIMISE*/
-	struct subjectNode *p = (struct subjectNode*) malloc(sizeof(struct subjectNode));
-	p = subjectExists(studentPtr->subject);
+	struct subjectNode *p = subjectExists(studentPtr->subject);
 	if (p == NULL) {
-		struct subjectNode *newSubjectPtr= (struct subjectNode*) malloc(sizeof(struct subjectNode));
+		struct subjectNode *newSubjectPtr = (struct subjectNode*) malloc(sizeof(struct subjectNode));
 		strcpy(newSubjectPtr->subject,studentPtr->subject);
-		newSubjectPtr->ptr = studentPtr;
-
+		newSubjectPtr->firstStudentPtr = studentPtr;
 		newSubjectPtr->next = head;
 		head = newSubjectPtr;
 	} else {
-		struct student *temp = (struct student*) malloc(sizeof(struct student));
-		temp = p->ptr;
-		while (temp->next != NULL) {
-			temp = temp->next;
+		struct student *studentAttendingSubjectPtr = p->firstStudentPtr;
+		while (studentAttendingSubjectPtr->next != NULL) {
+			studentAttendingSubjectPtr = studentAttendingSubjectPtr->next;
 		}
-		temp->next = studentPtr;
+		studentAttendingSubjectPtr->next = studentPtr;
 	}
 }
 
@@ -67,8 +60,28 @@ void readStudent(struct student *s1) {
 }
 
 void readAllStudents() {
-	for (int i=0; i<3; i++) {
+	printf("***All Students***\n\n");
+	for (int i=0; i<10; i++) {
+		if (*(studentArray + i) == NULL) {
+			break;
+		}
 		readStudent(*(studentArray + i));
+	}
+}
+
+void readStudentsBySubject(char subject[]) {
+	struct subjectNode *subjectPtr = subjectExists(subject);
+	
+	if (subjectPtr == NULL) {
+		printf("***Subject Does Not Exist***\n\n");
+		return;
+	}
+	printf("***%s***\n\n",subject);
+	
+	struct student *studentPtr = subjectPtr->firstStudentPtr;
+	while (studentPtr != NULL) {
+		readStudent(studentPtr);
+		studentPtr = studentPtr->next;
 	}
 }
 
@@ -104,11 +117,11 @@ int main() {
 	studentArray[1] = s2;
 	studentArray[2] = s3;
 	
-	//readAllStudents();
+	readAllStudents();
 	
-	/* JUST FOR TESTING IGNORE */
-	printf("%s :\n",head->next->subject);
-	readStudent(head->next->ptr);
-	readStudent(head->next->ptr->next);
+	readStudentsBySubject("Logic Programming");
+	readStudentsBySubject("Discrete Maths");
+	readStudentsBySubject("Graphs");
+	
 	return 0;
 }
