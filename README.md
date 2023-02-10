@@ -1,5 +1,11 @@
-# README
+# Data Structures 2022-2023
 
-To compile ex6.c you can either:
-	- run the command `gcc ex6.c helpers/expression_tree.c helpers/expression_stack.c` as there are 3 source files for this exercise
-	- run the included shell script with `./compile6.sh`
+Data Structures Assignment for the 1st Semester of the Postgraduate studies on Computer Science of University of Piraeus.
+
+## Instructions
+
+Exercises from 1 to 5 can be compiled in the expected way.
+To compile exercise 6 you can either:
+
+- run the command `gcc ex6.c helpers/expression_tree.c helpers/expression_stack.c`
+- run the included script with `./compile6.sh`
