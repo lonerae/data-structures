@@ -1,0 +1,8 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define MAX_EXPRESSION_LENGTH 50
+#define MAX_DIGIT_NUMBER 5
+#define STACK_SIZE 10
+
+#endif

@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_EXPRESSION_LENGTH 50
-#define MAX_DIGIT_NUMBER 5
+#include "expression_tree.h"
+
+struct treeNode *root;
 
 /**
 * Returns a numeric expression where all white spaces are trimmed
@@ -28,14 +29,14 @@ void cleanExpression(char *expression, char *result) {
 				*(result+resultIndex) = *(expression+expressionIndex);
 			}
 			resultIndex++;
-		}		
+		}
 		expressionIndex++;
 	}
 }
 
 /**
 * Removes the outer parentheses of an expression.
-* 
+*
 * Parameters
 *	expression - pointer to the given expression
 *
@@ -43,12 +44,13 @@ void cleanExpression(char *expression, char *result) {
 */
 void simplify(char *expression) {
 	int length = strlen(expression);
+	
 	if (*(expression+0) == '(' && *(expression+length-1) == ')') {
 		for (int expressionIndex=1; expressionIndex<length-1;expressionIndex++) {
 			*(expression+expressionIndex-1) = *(expression+expressionIndex);
-		}		
+		}
 		*(expression+length-2) = '\0';
-	}
+	}	
 }
 
 /**
@@ -67,7 +69,7 @@ void findLeft(char *expression, char *left, int *leftFlag) {
 	int expressionIndex = 0;
 	int leftIndex = 0;
 	int length = strlen(expression);
-	 
+
 	if (*(expression+expressionIndex) == '(') {
 		int nestedParentheses = 0;
 		expressionIndex++;
@@ -77,7 +79,7 @@ void findLeft(char *expression, char *left, int *leftFlag) {
 				nestedParentheses++;
 			} else if (*(expression+expressionIndex) == ')') {
 				nestedParentheses--;
-			}	
+			}
 			leftIndex++;
 			expressionIndex++;
 		}
@@ -110,7 +112,7 @@ void findLeft(char *expression, char *left, int *leftFlag) {
 void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 	int rightIndex = 0;
 	int expressionIndex = startIndex;
-	
+
 	while (*(expression+expressionIndex) != '\0') {
 		if (!isdigit(*(expression+expressionIndex))) {
 			*rightFlag = 0;
@@ -124,28 +126,15 @@ void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 }
 
 /**
-* Node structure for the generated tree. 
-*/
-struct treeNode {
-	char value[MAX_DIGIT_NUMBER];
-	
-	struct treeNode *above;
-	struct treeNode *left;
-	struct treeNode *right;
-};
-
-struct treeNode *root;
-
-/**
 * Recursively creates a tree representation of a given expression
 *
 * Parameters
 *	expression - pointer to the expression
 */
 struct treeNode *transform(char *expression) {
-	int length = strlen(expression); 
+	int length = strlen(expression);
 
-	char left[length]; 
+	char left[length];
 	int *leftFlag = (int *) malloc(sizeof(int));
 	*leftFlag = 1;
 
@@ -153,31 +142,31 @@ struct treeNode *transform(char *expression) {
 	int *rightFlag = (int *) malloc(sizeof(int));
 	*rightFlag = 1;
 
-	struct treeNode *parent = (struct treeNode*) malloc(sizeof(struct treeNode));	
+	struct treeNode *parent = (struct treeNode*) malloc(sizeof(struct treeNode));
 	// makes certain that the root is set on the first and only the first call of the function
 	if (root == NULL) {
 		root = (struct treeNode*) malloc(sizeof(struct treeNode));
 		root = parent;
 	}
-	
+
 	struct treeNode *leftChild = (struct treeNode*) malloc(sizeof(struct treeNode));
 	struct treeNode *rightChild = (struct treeNode*) malloc(sizeof(struct treeNode));
-	
+
 	findLeft(expression,left,leftFlag);
 	if (*leftFlag) {
 		parent->value[0] = *(expression+strlen(left)); // operators are characters (just 1B long)
-		strcpy(leftChild->value,left);	
-		
+		strcpy(leftChild->value,left);
+
 		findRight(expression,right,strlen(left)+1,rightFlag);
 	} else {
 		parent->value[0] = *(expression+strlen(left)+2);
 		leftChild = transform(left);
-		
+
 		findRight(expression,right,strlen(left)+3,rightFlag);
 	}
-	parent->left = leftChild;	
+	parent->left = leftChild;
 	leftChild->above = parent;
-	
+
 	if (*rightFlag) {
 		strcpy(rightChild->value,right);
 	} else {
@@ -185,11 +174,10 @@ struct treeNode *transform(char *expression) {
 	}
 	parent->right = rightChild;
 	rightChild->above = parent;
-	
+
 	return parent;
 }
 
-char evaluatedExpression[MAX_EXPRESSION_LENGTH][MAX_EXPRESSION_LENGTH];
 int part = 0;
 
 /**
@@ -199,43 +187,27 @@ int part = 0;
 * Parameters
 * 	node - the root node of the subtree
 */
-void traverseTree(struct treeNode* node) {
+void traverseTree(struct treeNode* node, char result[][MAX_EXPRESSION_LENGTH]) {
 	if (node->left != NULL) {
-		traverseTree(node->left);
+		traverseTree(node->left,result);
 	} else {
-		strcpy(evaluatedExpression[part],node->value);
+		strcpy(result[part],node->value);
 		part++;
 		return;
 	}
-	
+
 	if (node->right != NULL) {
-		traverseTree(node->right);
+		traverseTree(node->right,result);
 	} else {
-		strcpy(evaluatedExpression[part],node->value);
+		strcpy(result[part],node->value);
 		part++;
 		return;
 	}
-	
-	strcpy(evaluatedExpression[part],node->value);
+
+	strcpy(result[part],node->value);
 	part++;
 }
 
-int main() {
-	char expression[MAX_EXPRESSION_LENGTH];
-	printf("Write an arithmetic expression: \n");
-	fgets(expression,MAX_EXPRESSION_LENGTH,stdin);
-	
-	char result[MAX_EXPRESSION_LENGTH];	
-	cleanExpression(expression,result);
-	printf("CLEAN FORM: %s\n",result);
-	
-	transform(result);
-	traverseTree(root);
-	
-	for (int i=0; i<part; i++) {
-		printf("%s ", evaluatedExpression[i]);
-	}
-	printf("\n");
-	
-	return 0;
+void start(char result[][MAX_EXPRESSION_LENGTH]) {
+	traverseTree(root,result);
 }
