@@ -7,6 +7,14 @@
 
 struct treeNode *root;
 
+/**
+* Returns a numeric expression where all white spaces are trimmed
+* and all parentheses, brackets and braces are replaced by parentheses.
+*
+* Parameters
+*	expression - pointer to the initial string
+*	result - pointer to the result
+*/
 void cleanExpression(char *expression, char *result) {
 	int expressionIndex = 0;
 	int resultIndex = 0;
@@ -26,6 +34,14 @@ void cleanExpression(char *expression, char *result) {
 	}
 }
 
+/**
+* Removes the outer parentheses of an expression.
+*
+* Parameters
+*	expression - pointer to the given expression
+*
+* WARNING: TREATS THE EXPRESSION (STRING i.e. character array) AS A MUTABLE OBJECT
+*/
 void simplify(char *expression) {
 	int length = strlen(expression);
 	
@@ -37,6 +53,18 @@ void simplify(char *expression) {
 	}	
 }
 
+/**
+* Returns the left operand of a numeric expression and
+* informs whether it was an expression or a number.
+* e.g.
+*	if expression pointed to [1-(2*5)]+3-[(2-4)/3],
+*	left would point to 1-(2*5) and leftFlag to 0
+*
+* Parameters
+*	expression - pointer to the expression
+*	left - pointer to the left operand
+*	leftFlag - pointer to 1 if left is just a number, otherwise to 0
+*/
 void findLeft(char *expression, char *left, int *leftFlag) {
 	int expressionIndex = 0;
 	int leftIndex = 0;
@@ -68,6 +96,19 @@ void findLeft(char *expression, char *left, int *leftFlag) {
 	}
 }
 
+/**
+* Returns the right operand of a numeric expression and
+* informs whether it was an expression or a number.
+* e.g.
+*	if expression pointed to [1-(2*5)]+3-[(2-4)/3],
+*	right would point to 3-[(2-4)/3] and rightFlag to 0
+*
+* Parameters
+*	expression - pointer to the expression
+*	right - pointer to the right operand
+*	startIndex - index after which we should evaluate the right operand (depending on left operand length)
+*	rightFlag - pointer to 1 if right is just a number, otherwise to 0
+*/
 void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 	int rightIndex = 0;
 	int expressionIndex = startIndex;
@@ -84,7 +125,13 @@ void findRight(char *expression, char *right, int startIndex, int *rightFlag) {
 	simplify(right);
 }
 
-struct treeNode *makeTree(char *expression) {
+/**
+* Recursively creates a tree representation of a given expression
+*
+* Parameters
+*	expression - pointer to the expression
+*/
+struct treeNode *transform(char *expression) {
 	int length = strlen(expression);
 
 	char left[length];
@@ -113,7 +160,7 @@ struct treeNode *makeTree(char *expression) {
 		findRight(expression,right,strlen(left)+1,rightFlag);
 	} else {
 		parent->value[0] = *(expression+strlen(left)+2);
-		leftChild = makeTree(left);
+		leftChild = transform(left);
 
 		findRight(expression,right,strlen(left)+3,rightFlag);
 	}
@@ -123,7 +170,7 @@ struct treeNode *makeTree(char *expression) {
 	if (*rightFlag) {
 		strcpy(rightChild->value,right);
 	} else {
-		rightChild = makeTree(right);
+		rightChild = transform(right);
 	}
 	parent->right = rightChild;
 	rightChild->above = parent;
@@ -133,6 +180,13 @@ struct treeNode *makeTree(char *expression) {
 
 int part = 0;
 
+/**
+* Post-order traversal of a subtree and
+* insertion to the evaluated expression array.
+*
+* Parameters
+* 	node - the root node of the subtree
+*/
 void traverseTree(struct treeNode* node, char result[][MAX_EXPRESSION_LENGTH]) {
 	if (node->left != NULL) {
 		traverseTree(node->left,result);
@@ -154,6 +208,6 @@ void traverseTree(struct treeNode* node, char result[][MAX_EXPRESSION_LENGTH]) {
 	part++;
 }
 
-void traverseFromRoot(char result[][MAX_EXPRESSION_LENGTH]) {
+void start(char result[][MAX_EXPRESSION_LENGTH]) {
 	traverseTree(root,result);
 }
