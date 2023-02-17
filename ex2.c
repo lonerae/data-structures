@@ -103,7 +103,7 @@ void findIndexes(int* ptr, int index){
 int main() {
     int i;
     /* a stack that contains a vector of indexes */
-    int* ptr = stack;
+    int *ptr = getStack();
 
     if (getUserInput()){
         for (i=0; i<dim; i++) {

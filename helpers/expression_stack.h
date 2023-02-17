@@ -4,6 +4,7 @@
 #include "constants.h"
 
 void print_stack (int x);
+int* getStack();
 void push(int number);
 int pop ();
 
