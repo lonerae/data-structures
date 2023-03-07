@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "helpers/expression_stack.h"
 
+#define base 100
+#define length 6
 
 /*global variable that holds the dimension of the user's array*/
 int dim;
@@ -9,9 +11,41 @@ int dim;
 /* a pointer to a vector of pointers each one of which point to the
  lower and upper bound indexes of the user's array */
 int** boundsPtr;
-int base = 100;
-int length = 6;
 
+/* 2D array that will store all valid coordinates*/
+int** indexes;
+
+int getUserInput();
+int findTotal();
+void findIndexes(int guide, int temp[]);
+void findCoefficients(int index, int coefficients[]);
+void findAddress(int total, int coefficients[]);
+
+int main() {
+    if (getUserInput()){
+        for (int i=0; i<dim; i++) {
+            printf("===Row %d===\n",i+1);
+            printf("Lower bound: %d, Upper bound: %d\n",boundsPtr[i][0],boundsPtr[i][1]);
+            printf("\n");
+        }
+	
+	int total = findTotal();
+	
+        /* initialize recursion */
+        int coefficients[dim+1];
+	findCoefficients(dim,coefficients);
+
+	indexes = (int**) malloc(sizeof(int) * 100);
+	for (int i = 0; i < total; i++) {
+		indexes[i] = (int*) malloc(sizeof(int) * dim);
+	};
+	int temp[dim];
+
+        findIndexes(0, temp);
+        findAddress(total, coefficients);
+    }
+    return 0;
+}
 
 int getUserInput(){
     int i,j;
@@ -49,70 +83,56 @@ int getUserInput(){
     }
 }
 
-/* calculate all the (dimension + 1) coefficients of the given element of the array */
-int findCoefficients(int coefficients[]) {
-    int j;
-    *(coefficients+dim) = length;
-    for (j=dim-1;j>0;j--){
-        *(coefficients+j)=(boundsPtr[j][1] - boundsPtr[j][0] + 1) * *(coefficients+j+1);
-    }
-
-    int sum = base;
-    for (j=1;j<=dim;j++){
-        sum-=*(coefficients+j) * boundsPtr[j-1][0];
-    }
-    *(coefficients+0) = sum;
-    return sum;
-}
-
-/* calculate and print the exact memory address of the given element of the array */
-void findAddress(int sum, int coefficients[], int* ptr){
-    int j;
-    for (j=0;j<dim;j++){
-        sum+=*(coefficients+j+1) * *(ptr +j);
-    }
-    printf("Address of element ( ");
-    for( j=0; j<dim; j++){
-        printf("%d ",*(ptr+j));
-    }
-    printf(") is ");
-    printf("%d ",sum);
+/* find total number of elements of multidimensional array */
+int findTotal() {
+	int total = 1;
+	for (int i = 0; i < dim; i++) {
+		total *= (boundsPtr[i][1] - boundsPtr[i][0] + 1);
+	}
+	return total;
 }
 
 /* find recursively the valid indexes of all the elements of the user's array and calculate their address*/
-void findIndexes(int* ptr, int index){
-
-    int i,sum;
-    int coefficients[dim+1];
-
-    for(i=boundsPtr[index][0];i<=boundsPtr[index][1];i++){
-        push(i);
-        if (index==dim-1) {
-            sum = findCoefficients(coefficients);
-            findAddress(sum,coefficients,ptr);
-            printf("\n");
-
-        } else{
-            /* find the next sequence of indexes */
-            findIndexes(ptr,index +1);
-        }
-        pop();
-    }
+int count = 0; // global counter for entries in indexes, to avoid unexpected behaviour during recursion
+void findIndexes(int guide, int temp[]) {
+	for (int i = boundsPtr[guide][0]; i <= boundsPtr[guide][1]; i++) {
+		printf("%d\n",guide);
+		temp[guide] = i;
+		if (guide == dim - 1) {
+			for (int j = 0; j < dim; j++) {
+				indexes[count][j] = temp[j];
+			}
+			count++;
+		} else {
+			findIndexes(guide+1, temp);
+		}
+	}
 }
 
-int main() {
-    int i;
-    /* a stack that contains a vector of indexes */
-    int *ptr = getStack();
+/* calculate all the (dimension + 1) coefficients of the given element of the array */
+void findCoefficients(int index, int coefficients[]) {
+	coefficients[index] = length;
+	
+	for (int i = index - 1; i > 0; i--) {
+		coefficients[i] = (boundsPtr[i][1] - boundsPtr[i][0] + 1) * coefficients[i+1];
+	}
+	
+	coefficients[0] = base;
+	for (int i = 0; i < dim; i++) {
+		coefficients[0] -= coefficients[i+1] * boundsPtr[i][0];
+	}
+}
 
-    if (getUserInput()){
-        for (i=0; i<dim; i++) {
-            printf("===Row %d===\n",i+1);
-            printf("Lower bound: %d, Upper bound: %d\n",boundsPtr[i][0],boundsPtr[i][1]);
-            printf("\n");
-        }
-        /* initialize recursion */
-        findIndexes(ptr,0);
-    }
-    return 0;
+/* calculate and print the exact memory address of the given element of the array */
+void findAddress(int total, int coefficients[]) {
+	int addr;
+	for (int i = 0; i < total; i++) {
+		printf("Address of element ( ");
+		addr = coefficients[0];
+		for (int j = 0; j < dim; j++) {
+			printf("%d ", indexes[i][j]); 
+			addr += coefficients[j + 1] * indexes[i][j];
+		}
+		printf(") is %d\n", addr);
+	}
 }
