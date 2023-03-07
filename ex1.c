@@ -29,8 +29,10 @@ int main() {
 		update(A,retrievedB+retrievedC,i);		
 	}
 
+	float retrievedA;
 	for (int i = 0; i<10; i++) {
-		printf("Element %d of A:=B+C is %f\n",i+1,*(A+i));
+		retrieve(A, &retrievedA, i);
+		printf("Element %d of A:=B+C is %f\n",i+1,retrievedA);
 	}
 	  
 	return 0;
