@@ -3,3 +3,4 @@ ex*
 cmake-build-debug
 CMakeLists.txt
 *.adoc
+images/

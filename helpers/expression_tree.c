@@ -97,9 +97,11 @@ struct treeNode *makeTree(char *expression) {
 
 	struct treeNode *parent = (struct treeNode*) malloc(sizeof(struct treeNode));
 	// makes certain that the root is set on the first and only the first call of the function
+	// and the outer parentheses are removed
 	if (root == NULL) {
 		root = (struct treeNode*) malloc(sizeof(struct treeNode));
 		root = parent;
+		simplify(expression);
 	}
 
 	struct treeNode *leftChild = (struct treeNode*) malloc(sizeof(struct treeNode));
@@ -132,7 +134,6 @@ struct treeNode *makeTree(char *expression) {
 }
 
 int part = 0;
-
 void traverseTree(struct treeNode* node, char result[][MAX_EXPRESSION_LENGTH]) {
 	if (node->left != NULL) {
 		traverseTree(node->left,result);

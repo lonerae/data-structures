@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "helpers/expression_stack.h"
+#include <stdbool.h>
 
 #define base 100
 #define length 6
@@ -15,10 +15,10 @@ int** boundsPtr;
 /* 2D array that will store all valid coordinates*/
 int** indexes;
 
-int getUserInput();
+bool getUserInput();
 int findTotal();
 void findIndexes(int guide, int temp[]);
-void findCoefficients(int index, int coefficients[]);
+void findCoefficients(int coefficients[]);
 void findAddress(int total, int coefficients[]);
 
 int main() {
@@ -33,9 +33,9 @@ int main() {
 	
         /* initialize recursion */
         int coefficients[dim+1];
-	findCoefficients(dim,coefficients);
+	findCoefficients(coefficients);
 
-	indexes = (int**) malloc(sizeof(int) * 100);
+	indexes = (int**) malloc(sizeof(int) * total * dim);
 	for (int i = 0; i < total; i++) {
 		indexes[i] = (int*) malloc(sizeof(int) * dim);
 	};
@@ -47,7 +47,7 @@ int main() {
     return 0;
 }
 
-int getUserInput(){
+bool getUserInput(){
     int i,j;
 
     printf("Type the array's dimension: ");
@@ -56,8 +56,7 @@ int getUserInput(){
     /* user input validation */
     if (dim <= 0){
         printf("Invalid input. \n");
-        /* error exit code */
-        return 0;
+        return false;
     }
     else{
         /* dynamic allocation of the pointer (the rows of the 2D array representation)*/
@@ -72,14 +71,14 @@ int getUserInput(){
                     /* user input validation */
                     if (boundsPtr[i][j-1]>boundsPtr[i][j]){
                         printf("invalid input.\n");
-                        return 0;
+                        return false;
                     }
                 }
             }
 
 
         }
-        return 1;
+        return true;
     }
 }
 
@@ -96,7 +95,6 @@ int findTotal() {
 int count = 0; // global counter for entries in indexes, to avoid unexpected behaviour during recursion
 void findIndexes(int guide, int temp[]) {
 	for (int i = boundsPtr[guide][0]; i <= boundsPtr[guide][1]; i++) {
-		printf("%d\n",guide);
 		temp[guide] = i;
 		if (guide == dim - 1) {
 			for (int j = 0; j < dim; j++) {
@@ -110,10 +108,10 @@ void findIndexes(int guide, int temp[]) {
 }
 
 /* calculate all the (dimension + 1) coefficients of the given element of the array */
-void findCoefficients(int index, int coefficients[]) {
-	coefficients[index] = length;
+void findCoefficients(int coefficients[]) {
+	coefficients[dim] = length;
 	
-	for (int i = index - 1; i > 0; i--) {
+	for (int i = dim - 1; i > 0; i--) {
 		coefficients[i] = (boundsPtr[i][1] - boundsPtr[i][0] + 1) * coefficients[i+1];
 	}
 	
