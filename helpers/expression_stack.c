@@ -16,10 +16,6 @@ void print_stack (int x) {
 	printf("\n");
 }
 
-int* getStack() {
-	return stack;
-}
-
 void push(int number) {
 	if (top>(STACK_SIZE-1)){
 		printf("Stack is Full!\n");
